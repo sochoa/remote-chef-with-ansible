@@ -5,6 +5,10 @@
 destroy:
 	vagrant destroy -f
 
-default:
+create:
 	vagrant up
+
+ping:
 	ansible -m ping -i hosts all
+
+default: destroy create ping

@@ -1,0 +1,14 @@
+{
+  "name": "my-service",
+  "chef_type": "role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "my-service": {
+      "port": 80
+    }
+  },
+  "description": "Create a my-service instance",
+  "run_list": [
+    "recipe[my-service]"
+  ]
+}
