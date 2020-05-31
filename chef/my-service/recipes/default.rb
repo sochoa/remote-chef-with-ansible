@@ -3,11 +3,14 @@
 # Recipe:: default
 #
 # Copyright:: 2020, The Authors, All Rights Reserved.
+file '/tmp/chef-node.json' do 
+  content node.to_json
+end
 
 # https://github.com/sous-chefs/nginx
 nginx_install 'default' do
   worker_processes 'auto'
-  port node['port']
+  port node[cookbook_name]['port']
   default_site_enabled false
 end
 

@@ -4,4 +4,4 @@ if [ -z "${1}" ]; then
   exit 1
 fi
 vagrant ssh-config > ssh-config
-echo -e "[vagrant]\n${1}" > hosts
+echo -e "[vagrant]\n${1}" > ansible/hosts

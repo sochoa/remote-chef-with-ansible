@@ -1,7 +1,4 @@
 {
-  "name": "my-service",
-  "chef_type": "role",
-  "json_class": "Chef::Role",
   "default_attributes": {
     "my-service": {
       "port": 80

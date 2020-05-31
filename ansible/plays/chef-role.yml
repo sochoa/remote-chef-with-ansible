@@ -1,0 +1,9 @@
+---
+
+- hosts: vagrant
+  gather_facts: no
+  tasks: 
+  - name: Apply role to instance
+    shell: "chef-solo --chef-license accept-silent -c /etc/chef/solo.rb -j /var/chef-repo/roles/{{chef_role}}.json"
+    become: yes
+    become_user: root

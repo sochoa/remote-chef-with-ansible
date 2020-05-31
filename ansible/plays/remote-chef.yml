@@ -1,0 +1,92 @@
+---
+
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - shell: "cd ../../; cat chef/chef-repo-target"
+    register: chef_repo_target
+  - set_fact: chef_repo_remote_filepath="{{chef_repo_target.stdout}}"
+
+  - shell: 'cd ../../; basename chef/chef-repo*.tar*'
+    register: chef_repo_tarball
+  - set_fact: chef_repo_tarball_remote_filepath="/tmp/{{chef_repo_tarball.stdout}}"
+
+  - shell: 'cd ../../; echo $(pwd)/chef/chef-repo*.tar*'
+    register: chef_repo_tarball_src
+  - set_fact: chef_repo_tarball_local_filepath="{{chef_repo_tarball_src.stdout}}"
+
+
+
+- hosts: vagrant
+  gather_facts: no
+  remote_user: vagrant
+  tasks:
+  - set_fact:
+      chef_repo_tarball_local_filepath: "{{hostvars['localhost']['chef_repo_tarball_local_filepath']}}"
+      chef_repo_tarball_remote_filepath: "{{hostvars['localhost']['chef_repo_tarball_remote_filepath']}}"
+      chef_repo_remote_filepath: "{{hostvars['localhost']['chef_repo_remote_filepath']}}"
+
+  # - debug: var=chef_repo_tarball_remote_filepath
+  # - debug: var=chef_repo_tarball_local_filepath
+
+  - name: Copy chef-repo up to remote host
+    copy:
+      src: "{{chef_repo_tarball_local_filepath}}"
+      dest: "{{chef_repo_tarball_remote_filepath}}"
+
+  - name: "Unpack chef-repo tarball {{chef_repo_tarball_remote_filepath}} to {{chef_repo_remote_filepath}}"
+    command: "tar -jxvf {{chef_repo_tarball_remote_filepath}}"
+    register: unpack_tarball
+    args:
+      warn: false
+
+  - name: "Move chef-repo"
+    shell: "mv chef-repo {{chef_repo_remote_filepath}}"
+    become: true
+    become_user: root
+    args:
+      creates: "{{chef_repo_remote_filepath}}"
+
+  - name: "Sym-link chef-repo"
+    become: true
+    become_user: root
+    shell: "ln -sf {{chef_repo_remote_filepath}} /var/chef-repo"
+    args:
+      warn: false
+
+  - name: "Verify unpack of chef-repo"
+    command: "ls -al {{chef_repo_remote_filepath}}"
+    register: verify_unpack
+
+  - name: "Check for Chef solo"
+    stat:
+      path: /usr/bin/chef-solo
+    register: chef_solo_check
+
+  - name: "Get Chef client installer"
+    command: "curl -s -L -o /tmp/install-chef.sh https://www.chef.io/chef/install.sh"
+    args:
+      creates: "/tmp/install-chef.sh"
+      warn: false
+
+  - name: "Run Chef client installer"
+    command: "/bin/bash /tmp/install-chef.sh"
+    become: true
+    become_user: root
+    when: not chef_solo_check.stat.exists
+
+  - name: Create /etc/chef
+    shell: "mkdir -p /etc/chef"
+    become: true
+    become_user: root
+    args:
+      warn: false
+
+  - name: Copy chef solo conf up to remote host
+    copy:
+      src: "../../chef/solo.rb"
+      dest: "/etc/chef/solo.rb"
+    become: true
+    become_user: root
