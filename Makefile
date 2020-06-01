@@ -23,8 +23,6 @@ chef-package: chef-clean
 	( cd chef; berks vendor ./chef-repo/cookbooks )
 	( cd chef; cp -r roles ./chef-repo/ )
 	( cd chef; tar -cvjSf chef-repo.tar.bz2 chef-repo )
-	( cd chef; tar -tvf chef-repo.tar.bz2 )
-	echo "/var/chef-repo-$(TS)" > chef/chef-repo-target
 
 ansible-run-chef-solo:
 	ansible-playbook -i ansible/hosts -e 'chef_role=my-service' ansible/plays/chef-role.yml

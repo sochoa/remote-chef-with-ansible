@@ -28,9 +28,6 @@
       chef_repo_tarball_remote_filepath: "{{hostvars['localhost']['chef_repo_tarball_remote_filepath']}}"
       chef_repo_remote_filepath: "{{hostvars['localhost']['chef_repo_remote_filepath']}}"
 
-  # - debug: var=chef_repo_tarball_remote_filepath
-  # - debug: var=chef_repo_tarball_local_filepath
-
   - name: Copy chef-repo up to remote host
     copy:
       src: "{{chef_repo_tarball_local_filepath}}"
