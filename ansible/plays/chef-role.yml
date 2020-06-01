@@ -1,9 +1,15 @@
 ---
 
 - hosts: vagrant
-  gather_facts: no
+  gather_facts: yes
   tasks: 
   - name: Apply role to instance
     shell: "chef-solo --chef-license accept-silent -c /etc/chef/solo.rb -j /var/chef-repo/roles/{{chef_role}}.json"
     become: yes
     become_user: root
+  - set_fact:
+      alt_iface: "{{ ansible_interfaces | difference(['lo',ansible_default_ipv4.alias]) | first }}"
+  - set_fact:
+      alt_ipv4_addr: "{{hostvars[inventory_hostname]['ansible_' + alt_iface]['ipv4']['address']}}"
+  - debug: 
+      msg: "curl http://{{alt_ipv4_addr}}:80/"

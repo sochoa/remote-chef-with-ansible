@@ -29,6 +29,9 @@ chef-package: chef-clean
 ansible-run-chef-solo:
 	ansible-playbook -i ansible/hosts -e 'chef_role=my-service' ansible/plays/chef-role.yml
 
+test-my-service:
+	curl 
+
 default:              \
 	vagrant-destroy     \
 	vagrant-create      \
